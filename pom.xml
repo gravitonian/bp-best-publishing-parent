@@ -15,6 +15,19 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <!-- Alfresco Data directory, which will contain:
+              Content Store (i.e. the files we upload)
+              Database (i.e. the metadata for the uploaded files)
+              Search index (i.e. the indexed content and metadata)
+             Configured in alfresco-global.properties with the 'dir.root' property.
+              -->
+        <alfresco.data.location>${session.executionRootDirectory}/alf_data_dev</alfresco.data.location>
+
+        <!-- Duplicated with alfresco.solrHome in the plugin, we need them out here to do filtering -->
+        <solr.home>${alfresco.data.location}/solr</solr.home>
+        <solr.model.dir>${solr.home}/alfrescoModels</solr.model.dir>
+        <solr.content.dir>${solr.home}/index</solr.content.dir>
+
         <!-- Properties used in dependency declarations, you don't need to change these -->
         <alfresco.groupId>org.alfresco</alfresco.groupId>
 
@@ -33,11 +46,23 @@
         <!-- JRebel Hot reloading of classpath stuff and web resource stuff -->
         <jrebel.version>1.1.6</jrebel.version>
 
+        <!-- Environment to use, Alfresco Maven Plugin will
+             copy alfresco-global-*.properties files from this directory, such as src/test/properties/local -->
+        <env>local</env>
+
         <!-- Compile with Java 8, default is 5 -->
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
 
+        <!-- Set up Spring Framework versions to match what is used by Alfresco -->
         <spring.framework.version>3.2.17.RELEASE</spring.framework.version>
+        <spring.jmx.version>2.0.8</spring.jmx.version>
+
+        <!-- HTTP CLient version -->
+        <http.client.version>4.5.2</http.client.version>
+
+        <!-- Best Publishing Module Versions -->
+        <bestpublishing.utils.version>1.0-SNAPSHOT</bestpublishing.utils.version>
     </properties>
 
     <dependencies>
@@ -52,6 +77,38 @@
     <build>
         <pluginManagement>
             <plugins>
+                <!--
+                Build an AMP if 3rd party libs are needed by the extensions.
+                JARs are the default artifact produced in your modules, if you want to build an amp for each module
+                you have to enable this plugin and inspect the src/main/assembly.xml file if you want to customize
+                the layout of your AMP. The end result is that Maven will produce both a JAR file and an AMP with your
+                module.
+                -->
+                <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.6</version>
+                    <executions>
+                        <execution>
+                            <id>build-amp-file</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>single</goal>
+                            </goals>
+                            <configuration>
+                                <appendAssemblyId>false</appendAssemblyId>
+                                <descriptor>src/main/assembly/amp.xml</descriptor>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.alfresco.maven.plugin</groupId>
+                            <artifactId>alfresco-maven-plugin</artifactId>
+                            <version>${alfresco.sdk.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+
                 <!-- Filter resources in any sub-project with this config -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -87,6 +144,44 @@
                         </nonFilteredFileExtensions>
                     </configuration>
                 </plugin>
+
+                <!-- Hot reloading with JRebel -->
+                <plugin>
+                    <groupId>org.zeroturnaround</groupId>
+                    <artifactId>jrebel-maven-plugin</artifactId>
+                    <version>${jrebel.version}</version>
+                    <executions>
+                        <execution>
+                            <id>generate-rebel-xml</id>
+                            <phase>process-resources</phase>
+                            <goals>
+                                <goal>generate</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <!-- For more information about how to configure JRebel plugin see:
+                             http://manuals.zeroturnaround.com/jrebel/standalone/maven.html#maven-rebel-xml -->
+                        <classpath>
+                            <fallback>all</fallback>
+                            <resources>
+                                <resource>
+                                    <!--
+                                    Empty resource element marks default configuration. By
+                                    default it is placed first in generated configuration.
+                                    -->
+                                </resource>
+                            </resources>
+                        </classpath>
+
+                        <!--
+                          alwaysGenerate - default is false
+                          If 'false' - rebel.xml is generated if timestamps of pom.xml and the current rebel.xml file are not equal.
+                          If 'true' - rebel.xml will always be generated
+                        -->
+                        <alwaysGenerate>true</alwaysGenerate>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -105,10 +200,40 @@
     </build>
 
     <!--
-        Other Repositories
+        Alfresco Maven Repositories
         -->
     <repositories>
+        <repository>
+            <id>alfresco-public</id>
+            <url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
+        </repository>
+        <repository>
+            <id>alfresco-public-snapshots</id>
+            <url>https://artifacts.alfresco.com/nexus/content/groups/public-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </repository>
+        <!-- Alfresco Enterprise Edition Artifacts, put username/pwd for server in settings.xml -->
+        <repository>
+            <id>alfresco-private-repository</id>
+            <url>https://artifacts.alfresco.com/nexus/content/groups/private</url>
+        </repository>
     </repositories>
     <pluginRepositories>
+        <pluginRepository>
+            <id>alfresco-plugin-public</id>
+            <url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>alfresco-plugin-public-snapshots</id>
+            <url>https://artifacts.alfresco.com/nexus/content/groups/public-snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
+        </pluginRepository>
     </pluginRepositories>
+
 </project>
