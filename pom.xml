@@ -259,6 +259,7 @@
     </build>
 
     <profiles>
+        <!-- Triggered by maven-release-plugin -->
         <profile>
             <id>releases</id>
             <build>
@@ -283,6 +284,10 @@
         Alfresco Maven Repositories
         -->
     <repositories>
+        <repository>
+            <id>local-releases</id>
+            <url>http://localhost:8081/repository/maven-releases/</url>
+        </repository>
         <repository>
             <id>alfresco-public</id>
             <url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
