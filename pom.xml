@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.acme.bestpublishing</groupId>
     <artifactId>best-publishing-parent</artifactId>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2</version>
     <!-- UPDATED -->
     <name>BestPub Parent Project</name>
     <description>Best Publishing Parent Project</description>
@@ -78,7 +78,7 @@
         <connection>scm:git:https://github.com/gravitonian/bp-best-publishing-parent.git</connection>
         <url>https://github.com/gravitonian/bp-best-publishing-parent</url>
         <developerConnection>scm:git:https://github.com/gravitonian/bp-best-publishing-parent.git</developerConnection>
-      <tag>HEAD</tag>
+      <tag>v1.2</tag>
   </scm>
 
     <distributionManagement>
