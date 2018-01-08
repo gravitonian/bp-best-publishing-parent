@@ -62,7 +62,7 @@
         <http.client.version>4.5.2</http.client.version>
 
         <!-- Best Publishing Module Versions -->
-        <bestpublishing.utils.version>1.0-SNAPSHOT</bestpublishing.utils.version>
+        <bestpublishing.utils.version>1.1</bestpublishing.utils.version>
     </properties>
 
     <dependencies>
@@ -270,7 +270,9 @@
                         <version>1.6.8</version>
                         <extensions>true</extensions>
                         <configuration>
+                            <!-- The server "id" element from settings.xml to use authentication from -->
                             <serverId>local-nexus</serverId>
+                            <!-- The Base URL of Nexus instance where we want to stage -->
                             <nexusUrl>http://localhost:8081/nexus/</nexusUrl>
                             <skipStaging>true</skipStaging>
                         </configuration>
